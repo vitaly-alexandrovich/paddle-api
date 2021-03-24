@@ -6,6 +6,7 @@
   "homepage": "https://github.com/RayAtomsk/paddle-php",
   "license": "MIT",
   "minimum-stability": "dev",
+  "version": "0.6.0",
   "require": {
     "php": ">=5.5.0",
     "ext-curl": "*",
