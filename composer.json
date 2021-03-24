@@ -1,5 +1,5 @@
 {
-  "name": "rayatomsk/paddle-api",
+  "name": "vitaly-alexandrovich/paddle-api",
   "type": "library",
   "description": "Paddle.com API PHP library",
   "keywords": ["paddle","api","php"],
