@@ -9,11 +9,13 @@ class API
      * @var string Paddle Checkout API base URL.
      */
     const PADDLE_CHECKOUT_API_URL = 'https://checkout.paddle.com/api';
+    const PADDLE_CHECKOUT_SANDBOX_API_URL = 'https://sandbox-checkout.paddle.com/api';
 
     /**
      * @var string Paddle Product API, Subscription API and Alert API base URL.
      */
     const PADDLE_VENDOR_API_URL = 'https://vendors.paddle.com/api';
+    const PADDLE_VENDOR_SANDBOX_API_URL = 'https://sandbox-vendors.paddle.com/api';
 
     /**
      * @var int $vendorID The vendor ID identifies your seller account.
@@ -26,6 +28,7 @@ class API
     protected $vendorID;
     protected $vendorAuthCode;
     protected $requestTimeout = 30;
+    protected $sandboxMode = false;
 
     /**
      * Paddle constructor.
@@ -37,11 +40,12 @@ class API
      *      The vendor auth code is a private API key for authenticating API requests.
      *      This key should never be used in client side code or shared publicly.
      *      This can be found in Developer Tools > Authentication.
+     * @param bool $sandboxMode
      * @param int $requestTimeout Request timeout in seconds. Default is 30.
      */
-    public function __construct($vendorID = null, $vendorAuthCode = null, $requestTimeout = null)
+    public function __construct($vendorID = null, $vendorAuthCode = null, $sandboxMode = false, $requestTimeout = null)
     {
-        $this->init($vendorID, $vendorAuthCode, $requestTimeout);
+        $this->init($vendorID, $vendorAuthCode, $sandboxMode, $requestTimeout);
     }
 
     /**
@@ -55,13 +59,15 @@ class API
      *      The vendor auth code is a private API key for authenticating API requests.
      *      This key should never be used in client side code or shared publicly.
      *      This can be found in Developer Tools > Authentication.
+     * @param bool $sandboxMode
      * @param int $requestTimeout Request timeout in seconds. Default is 30.
      */
-    public function init($vendorID = null, $vendorAuthCode = null, $requestTimeout = null)
+    public function init($vendorID = null, $vendorAuthCode = null, $sandboxMode = false, $requestTimeout = null)
     {
         if (!empty($vendorID)) $this->vendorID = (int) $vendorID;
         if (!empty($vendorAuthCode)) $this->vendorAuthCode = (string) $vendorAuthCode;
         if (!empty($requestTimeout)) $this->requestTimeout = (int) $requestTimeout;
+        $this->sandboxMode = (bool) $sandboxMode;
     }
 
     /**
@@ -124,11 +130,18 @@ class API
         curl_setopt($curlClient, CURLOPT_RETURNTRANSFER, true);
 
         if ($method === 'post') {
-            $requestURL = self::PADDLE_VENDOR_API_URL . $uri;
+            $requestURL = $this->sandboxMode
+                ? self::PADDLE_VENDOR_SANDBOX_API_URL
+                : self::PADDLE_VENDOR_API_URL;
+            $requestURL .= $uri;
+
             curl_setopt($curlClient, CURLOPT_POST, true);
             curl_setopt($curlClient, CURLOPT_POSTFIELDS, $parameters);
         } else {
-            $requestURL = self::PADDLE_CHECKOUT_API_URL . $uri . '?' . $parameters;
+            $requestURL = $this->sandboxMode
+                ? self::PADDLE_CHECKOUT_SANDBOX_API_URL
+                : self::PADDLE_CHECKOUT_API_URL;
+            $requestURL .= $uri . '?' . $parameters;
         }
 
         curl_setopt($curlClient, CURLOPT_URL, $requestURL);
